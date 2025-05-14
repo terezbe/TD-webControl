@@ -1,11 +1,21 @@
 {
   "name": "td-webcontrol",
   "version": "1.0.0",
+  "description": "Realtime control panel for TouchDesigner (color buttons + synced sliders)",
   "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "keywords": [
+    "touchdesigner",
+    "socket.io",
+    "websocket",
+    "realtime",
+    "control-panel"
+  ],
+  "author": "Erez Cohen",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.19.0",
     "socket.io": "^4.7.5"
