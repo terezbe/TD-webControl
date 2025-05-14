@@ -1,6 +1,13 @@
-# in the repo folder on your computer
-npm init -y                          # creates package.json
-npm install express socket.io        # adds dependencies
-git add package.json package-lock.json
-git commit -m "add package.json & deps"
-git push
+{
+  "name": "td-webcontrol",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "socket.io": "^4.7.5"
+  }
+}
