@@ -1,0 +1,6 @@
+# in the repo folder on your computer
+npm init -y                          # creates package.json
+npm install express socket.io        # adds dependencies
+git add package.json package-lock.json
+git commit -m "add package.json & deps"
+git push
