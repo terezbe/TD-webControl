@@ -1,19 +1,27 @@
+// TD-webControl/server.js
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const app = express();
+// Resolve paths (ES-modules don't have __dirname natively)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+
+const app        = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: '*' } }); // allow TD too
+const io         = new Server(httpServer, { cors: { origin: '*' } });
 
-app.use(express.static('public'));
+// serve everything inside /public
+app.use(express.static(join(__dirname, 'public')));
 
-// relay EVERY ui message to EVERYONE
+// relay any UI message to every connected client
 io.on('connection', socket => {
   socket.on('ui', data => io.emit('ui', data));
 });
 
-const PORT = process.env.PORT || 3000;   // ✔ Railway injects PORT
+const PORT = process.env.PORT || 3000; // Railway injects $PORT
 httpServer.listen(PORT, () =>
-  console.log(`🟢 control panel on http://localhost:${PORT}`)
+  console.log(`🟢 TD-webControl running on port ${PORT}`)
 );
