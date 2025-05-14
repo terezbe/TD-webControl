@@ -1,66 +1,75 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- TD-webControl/public/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TD Live Controls</title>
 <style>
-  body{margin:0;background:#111;color:#fff;font:14px/1 sans-serif}
-  .wrap{display:flex;flex-direction:column;min-height:100dvh;gap:1rem;padding:1rem}
+  body{margin:0;background:#111;font:14px/1 sans-serif;color:#fff}
+  .wrap{display:flex;flex-direction:column;gap:1rem;min-height:100dvh;padding:1rem}
   #colors{display:flex;gap:.5rem;flex-wrap:wrap}
   .btn{flex:1 1 60px;height:40px;border:none;border-radius:4px}
   .slider-block{display:flex;align-items:center;gap:.5rem}
-  input[type=range]{flex:1}
-</style></head><body>
+  .slider-block input[type=range]{flex:1}
+</style>
+</head>
+<body>
 <div class="wrap">
+  <!-- colour buttons -->
   <div id="colors">
     <button class="btn" data-col="#ff3b3b" style="background:#ff3b3b"></button>
     <button class="btn" data-col="#35c24a" style="background:#35c24a"></button>
     <button class="btn" data-col="#0091ff" style="background:#0091ff"></button>
   </div>
 
-  <!-- add as many slider blocks as you want -->
+  <!-- sliders -->
   <div class="slider-block" data-id="size">
     <label>Size</label>
-    <input type="range" min="1" max="100" value="50">
+    <input type="range" min="1"  max="100" step="1"  value="50">
     <span class="val">50</span>
   </div>
 
   <div class="slider-block" data-id="speed">
     <label>Speed</label>
-    <input type="range" min="0" max="1" step="0.01" value="0.5">
+    <input type="range" min="0"  max="1"   step="0.01" value="0.50">
     <span class="val">0.50</span>
   </div>
 </div>
 
+<!-- socket.io client comes from the server -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const ioC = io();               // auto-connect to same origin
+  const socket = io(); // connects to the same origin
 
-/* ------------- color buttons ------------- */
-document.querySelectorAll('.btn').forEach(b=>{
-  b.onclick = () => ioC.emit('ui', {type:'color', value:b.dataset.col});
-});
+  /* ----- colour buttons ----- */
+  document.querySelectorAll('.btn').forEach(b=>{
+    b.onclick = () => socket.emit('ui', {type:'color', value:b.dataset.col});
+  });
 
-/* ------------- sliders ------------- */
-document.querySelectorAll('.slider-block').forEach(block=>{
-  const id     = block.dataset.id;
-  const slider = block.querySelector('input');
-  const label  = block.querySelector('.val');
-
-  // local move → emit
-  slider.oninput = () =>{
-    label.textContent = slider.value;
-    ioC.emit('ui', {type:'slider', id, value:+slider.value});
-  };
-});
-
-// remote update handler
-ioC.on('ui', msg=>{
-  if(msg.type==='slider'){
-    const block  = document.querySelector(`.slider-block[data-id="${msg.id}"]`);
-    if(!block) return;
+  /* ----- sliders (send & receive) ----- */
+  document.querySelectorAll('.slider-block').forEach(block=>{
+    const id     = block.dataset.id;
     const slider = block.querySelector('input');
     const label  = block.querySelector('.val');
-    slider.value = msg.value;
-    label.textContent = msg.value;
-  }
-});
-</script></body></html>
+
+    slider.oninput = () =>{
+      label.textContent = slider.value;
+      socket.emit('ui', {type:'slider', id, value:+slider.value});
+    };
+  });
+
+  socket.on('ui', msg=>{
+    if(msg.type==='slider'){
+      const block  = document.querySelector(`.slider-block[data-id="${msg.id}"]`);
+      if(!block) return;
+      const slider = block.querySelector('input');
+      const label  = block.querySelector('.val');
+      slider.value       = msg.value;
+      label.textContent  = msg.value;
+    }
+    // colour messages don't need UI feedback here, but TD gets them
+  });
+</script>
+</body>
+</html>
